@@ -1,0 +1,234 @@
+{
+	"info": {
+		"_postman_id": "73165c55-aafa-4ddd-97c6-bcbf3d2f7f19",
+		"name": "API Training - POST /posts",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3902605"
+	},
+	"item": [
+		{
+			"name": "Request 1 – TC01 – Create post",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// TC01 – Happy path: valid post creation",
+							"",
+							"pm.test(\"TC01 – Status is 201 Created\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"TC01 – Response is valid JSON\", function () {",
+							"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+							"    pm.response.to.be.withBody;",
+							"    const json = pm.response.json();",
+							"    pm.expect(json).to.be.an('object');",
+							"});",
+							"",
+							"pm.test(\"TC01 – Response contains required fields\", function () {",
+							"    const json = pm.response.json();",
+							"    pm.expect(json).to.have.property(\"id\");",
+							"    pm.expect(json).to.have.property(\"title\");",
+							"    pm.expect(json).to.have.property(\"body\");",
+							"    pm.expect(json).to.have.property(\"userId\");",
+							"});",
+							"",
+							"pm.test(\"TC01 – Response echoes sent values (as much as mock allows)\", function () {",
+							"    const json = pm.response.json();",
+							"    pm.expect(json.title).to.eql(\"My QA automation post\");",
+							"    pm.expect(json.body).to.eql(\"Testing API happy path\");",
+							"    pm.expect(json.userId).to.eql(1);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"title\": \"My QA automation post\",\n  \"body\": \"Testing API happy path\",\n  \"userId\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://jsonplaceholder.typicode.com/posts",
+					"protocol": "https",
+					"host": [
+						"jsonplaceholder",
+						"typicode",
+						"com"
+					],
+					"path": [
+						"posts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Request 2 – TC02 – Missing title",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// TC02 – Missing title",
+							"",
+							"pm.test(\"TC02 – Server responds (mock behaviour)\", function () {",
+							"    // JSONPlaceholder will still return 201",
+							"    pm.expect([201, 400, 422]).to.include(pm.response.code);",
+							"});",
+							"",
+							"pm.test(\"TC02 – Response is JSON object\", function () {",
+							"    const json = pm.response.json();",
+							"    pm.expect(json).to.be.an('object');",
+							"});",
+							"",
+							"console.log(\"NOTE (TC02): JSONPlaceholder accepts missing `title`, but a real API should return 400/422 with a validation error.\");"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"body\": \"Post without title field\",\n  \"userId\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://jsonplaceholder.typicode.com/posts",
+					"protocol": "https",
+					"host": [
+						"jsonplaceholder",
+						"typicode",
+						"com"
+					],
+					"path": [
+						"posts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Request 3 – TC05 – userId as string",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// TC05 – userId as string",
+							"",
+							"pm.test(\"TC05 – Server responds (mock behaviour)\", function () {",
+							"    pm.expect([201, 400, 422]).to.include(pm.response.code);",
+							"});",
+							"",
+							"pm.test(\"TC05 – Response is JSON\", function () {",
+							"    const json = pm.response.json();",
+							"    pm.expect(json).to.be.an('object');",
+							"});",
+							"",
+							"console.log(\"NOTE (TC05): JSONPlaceholder accepts string userId, but a real API should reject with 400/422 (invalid type).\");"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"title\": \"Wrong type userId\",\n  \"body\": \"userId is string instead of number\",\n  \"userId\": \"abc\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://jsonplaceholder.typicode.com/posts",
+					"protocol": "https",
+					"host": [
+						"jsonplaceholder",
+						"typicode",
+						"com"
+					],
+					"path": [
+						"posts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Request 4 – TC12 – Malformed JSON",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// TC12 – Malformed JSON",
+							"",
+							"pm.test(\"TC12 – Server responds with an error status for malformed body\", function () {",
+							"    const status = pm.response.code;",
+							"    pm.expect([400, 500]).to.include(status);",
+							"});",
+							"",
+							"console.log(\"NOTE (TC12): In a real API, malformed JSON should return 400 Bad Request. If you see 500, the server is not handling it gracefully.\");"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"title\": \"Broken JSON\",\n  \"body\": \"Missing closing brace\"",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://jsonplaceholder.typicode.com/posts",
+					"protocol": "https",
+					"host": [
+						"jsonplaceholder",
+						"typicode",
+						"com"
+					],
+					"path": [
+						"posts"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
